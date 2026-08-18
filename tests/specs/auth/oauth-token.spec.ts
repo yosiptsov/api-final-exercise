@@ -37,6 +37,14 @@ async function registerOAuthClient(
   return response.json();
 }
 
+async function deactivateOAuthClient(request: APIRequestContext, token: string, clientId: string) {
+  const response = await request.delete(`/api/oauth/clients/${clientId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  expect(response.status()).toBe(200);
+  return response.json();
+}
+
 test.describe("verify oAuth", () => {
   test("get token", async ({ request }) => {
     const admin = {
@@ -48,6 +56,8 @@ test.describe("verify oAuth", () => {
     console.log(token);
 
     const oAuthResponse = await registerOAuthClient(request, token, ["read", "write"], "Delete this");
-    console.log(oAuthResponse.clientId);
+    //console.log(oAuthResponse.clientId);
+    const deactivateOAuthClientResponse = await deactivateOAuthClient(request, token, oAuthResponse.clientId);
+    console.log(deactivateOAuthClientResponse);
   });
 });
