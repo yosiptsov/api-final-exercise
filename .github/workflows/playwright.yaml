@@ -82,6 +82,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Створює порожній файл .env, щоб уникнути помилки "node: .env: not found" під час виконання db:seed,
+      # оскільки в CI всі змінні передаються безпосередньо через env джобу.
+      - name: Create empty .env file
+        run: touch .env
+
       # Синхронізує схему Prisma з базою даних — створює або оновлює таблиці
       # відповідно до поточних моделей без застосування міграцій.
       - name: Push schema to database
