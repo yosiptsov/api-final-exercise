@@ -1,91 +1,57 @@
 import { APIRequestContext, test as base, request as APIRequest } from "@playwright/test";
 import { ApiController } from "../app/api/ApiController";
-import { RegisterUserPayload } from "../app/schemas/User";
 import { env } from "../../envValidation";
 
-// 1. Describe types for options and our new fixture
 type Fixtures = {
-  //options
   options: {
-    isAuthorized: boolean; // true — authentication required, false — clean request
-    isNeedToCreateUser: boolean; // true — create a new unique user, false — use an existing one
+    isAuthorized: boolean;
+    scope?: string[];
   };
   existingUser: {
-    // test data
     existingUserEmail: string;
     existingUserPass: string;
   };
-
-  newUserPayload: RegisterUserPayload | null; // allows passing a custom payload from the test
-
-  authRequest: APIRequestContext; // Our new authorized fixture. It has name authRequest not just request, to not to change fixture 'request'
+  authRequest: APIRequestContext;
   apiController: ApiController;
 };
 
 export const test = base.extend<Fixtures>({
-  // 2. Set default values for fixture parameters
-  options: { isAuthorized: true, isNeedToCreateUser: false },
+  options: { isAuthorized: true, scope: ["read", "write"] },
   existingUser: { existingUserEmail: env.ADMIN_EMAIL, existingUserPass: env.ADMIN_PASS },
-  newUserPayload: null,
-
-  // 3. Implement the authRequest fixture
-  authRequest: async ({ request, options, existingUser, newUserPayload }, use) => {
+  authRequest: async ({ request, options, existingUser }, use) => {
     const api = new ApiController(request);
-    // CASE 1: Authentication is not required at all
     if (!options.isAuthorized) {
-      await use(request); // Return the base unauthorized client
+      await use(request);
       return;
     }
-
-    let targetEmail = existingUser.existingUserEmail;
-    let targetPass = existingUser.existingUserPass;
     let contextToDispose: APIRequestContext | null = null;
 
-    try {
-      // CASE 2: Need to create a NEW unique user
-      if (options.isNeedToCreateUser) {
-        const testUserNumber = Date.now();
+    const token = await api.oAuthController.getToken(existingUser.existingUserEmail, existingUser.existingUserPass);
+    const registerOAuthClientResponse = await api.oAuthController.registerOAuthClient(token, options.scope ?? []);
+    const oAuthClientId = registerOAuthClientResponse.clientId;
+    const oAuthClientSecret = registerOAuthClientResponse.clientSecret;
+    const oAuthClientToken = await api.oAuthController.getOAuthClientToken(
+      token,
+      oAuthClientId,
+      oAuthClientSecret,
+      options.scope ?? [],
+    );
 
-        // If the test did not pass a custom payload, generate a random one
-        const generatedPayload: RegisterUserPayload = newUserPayload || {
-          user: {
-            name: `youser${testUserNumber}`,
-            email: `youser${testUserNumber}@gm1.com`,
-            password: env.ADMIN_PASS,
-          },
-        };
+    const authContext = await APIRequest.newContext({
+      extraHTTPHeaders: {
+        Authorization: `Bearer ${oAuthClientToken}`,
+      },
+    });
 
-        // Create the user in the system using the base API client
-        await api.userController.registerUser(generatedPayload);
+    contextToDispose = authContext;
 
-        // Save user credentials for the subsequent login step
-        targetEmail = generatedPayload.user.email;
-        targetPass = generatedPayload.user.password;
-      }
-
-      // CASE 3 (Default): Login either the new or existing user from env
-      const token = await api.oAuthController.getToken(targetEmail, targetPass);
-
-      // Create an isolated context with the Authorization header
-      const authContext = await APIRequest.newContext({
-        extraHTTPHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      contextToDispose = authContext;
-
-      // Pass the authorized context into the test
-      await use(authContext);
-    } finally {
-      if (contextToDispose) {
-        await contextToDispose.dispose();
-      }
-    }
+    await use(authContext);
+    // teardown
+    await api.oAuthController.deactivateOAuthClient(token, oAuthClientId);
+    await contextToDispose.dispose();
   },
   apiController: async ({ authRequest }, use) => {
     const controller = new ApiController(authRequest);
     await use(controller);
   },
 });
-

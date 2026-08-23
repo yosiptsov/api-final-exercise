@@ -1,63 +1,32 @@
-import { test, expect, type APIRequestContext } from "@playwright/test";
+import { test } from "../fixtures";
+import { expect } from "@playwright/test";
+import { TAG } from "../../app/tags/tags";
+import { ApiController } from "../../app/api/ApiController";
 
-async function getToken(request: APIRequestContext, email: string, password: string) {
-  const response = await request.post("/api/oauth/token", {
-    data: {
-      grant_type: "password",
-      email: email,
-      password: password,
-    },
-    failOnStatusCode: true,
+test.describe("Services authorized user with only role 'Read'", { tag: [TAG.auth, TAG.authorized] }, () => {
+  test.use({
+    options: { isAuthorized: true, scope: ["read"] },
   });
 
-  expect(response.status()).toBe(200);
-  const responseBody = await response.json();
-  expect(responseBody.access_token).toBeTruthy();
-  return responseBody.access_token;
-}
+  test("Current user info response contains", async ({ apiController }) => {
+    //Arrange
+    //Act
+    const currentUserInfoResponse = await apiController.oAuthController.getCurrentUserInfo();
+    const currentUserInfoResponseJson = await currentUserInfoResponse.json();
 
-async function registerOAuthClient(
-  request: APIRequestContext,
-  token: string,
-  scopes: string[],
-  name: string = "PW credentials",
-  grants: string[] = ["client_credentials"],
-) {
-  const response = await request.post("/api/oauth/clients", {
-    headers: { Authorization: `Bearer ${token}` },
-    data: {
-      name: name,
-      grants: grants,
-      scopes: scopes,
-    },
-    failOnStatusCode: true,
+    //Assert
+
+    // headers
+    expect.soft(currentUserInfoResponse.headers()["content-type"]).toContain("application/json");
+    expect.soft(currentUserInfoResponseJson.sub, "field sub contains text 'client_'").toContain("client_");
+    expect.soft(currentUserInfoResponseJson.type, "field client is 'client'").toBe("client");
+    expect.soft(currentUserInfoResponseJson.scopes, "field scopes has only permission 'read'").toEqual(["read"]);
+    console.log(currentUserInfoResponseJson);
   });
+});
 
-  expect(response.status()).toBe(201);
-  return response.json();
-}
-
-async function deactivateOAuthClient(request: APIRequestContext, token: string, clientId: string) {
-  const response = await request.delete(`/api/oauth/clients/${clientId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  expect(response.status()).toBe(200);
-  return response.json();
-}
-
-test.describe("verify oAuth", () => {
-  test("get token", async ({ request }) => {
-    const admin = {
-      email: process.env.ADMIN_EMAIL as string,
-      password: process.env.ADMIN_PASS as string,
-    };
-
-    const token = await getToken(request, admin.email, admin.password);
-    console.log(token);
-
-    const oAuthResponse = await registerOAuthClient(request, token, ["read", "write"], "Delete this");
-    //console.log(oAuthResponse.clientId);
-    const deactivateOAuthClientResponse = await deactivateOAuthClient(request, token, oAuthResponse.clientId);
-    console.log(deactivateOAuthClientResponse);
+test.describe("Services unavailable for unauthorized user", { tag: [TAG.auth, TAG.nonAuthRequests] }, () => {
+  test.use({
+    options: { isAuthorized: false, scope: ["read"] },
   });
 });
