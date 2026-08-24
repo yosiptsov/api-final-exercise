@@ -1,7 +1,9 @@
 export enum TAG {
   auth = "@auth",
-  nonAuthRequests = "@nonAuthRequests",
+  notAuthorized = "@notAuthorized",
   authorized = "@authorized",
-  user = "@user",
+  roleRead = "@roleRead",
+  roleWrite = "@roleWrite",
+  roleAdmin = "@roleAdmin",
   course = "@course",
 }

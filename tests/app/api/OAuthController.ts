@@ -8,17 +8,16 @@ export class OAuthController extends BaseController {
   private endpointUserInfo = "/api/oauth/userinfo";
   private endpointUserRegister = "/api/auth/register";
 
-  async getToken(email: string, password: string) {
+  async getToken(email: string, password: string, failOnStatusCode: boolean = true) {
     const response = await this.request.post(this.endpointToken, {
       data: {
         grant_type: "password",
         email: email,
         password: password,
       },
-      failOnStatusCode: true,
+      failOnStatusCode: failOnStatusCode,
     });
 
-    expect(response.status()).toBe(200);
     const responseBody = await response.json();
     expect(responseBody.access_token).toBeTruthy();
     return responseBody.access_token;
@@ -29,6 +28,7 @@ export class OAuthController extends BaseController {
     scopes: string[],
     name: string = "PW credentials",
     grants: string[] = ["client_credentials"],
+    failOnStatusCode: boolean = true,
   ) {
     const response = await this.request.post(this.endpointClient, {
       headers: { Authorization: `Bearer ${token}` },
@@ -37,14 +37,19 @@ export class OAuthController extends BaseController {
         grants: grants,
         scopes: scopes,
       },
-      failOnStatusCode: true,
+      failOnStatusCode: failOnStatusCode,
     });
 
-    expect(response.status()).toBe(201);
     return response.json();
   }
 
-  async getOAuthClientToken(token: string, clientId: string, clientSecret: string, scope: string[]) {
+  async getOAuthClientToken(
+    token: string,
+    clientId: string,
+    clientSecret: string,
+    scope: string[],
+    failOnStatusCode: boolean = true,
+  ) {
     const response = await this.request.post(this.endpointToken, {
       headers: { Authorization: `Bearer ${token}` },
       data: {
@@ -53,20 +58,19 @@ export class OAuthController extends BaseController {
         client_secret: clientSecret,
         scope: scope.join(" "),
       },
-      failOnStatusCode: true,
+      failOnStatusCode: failOnStatusCode,
     });
 
-    expect(response.status()).toBe(200);
     const responseBody = await response.json();
     expect(responseBody.access_token).toBeTruthy();
     return responseBody.access_token;
   }
 
-  async deactivateOAuthClient(token: string, clientId: string) {
+  async deactivateOAuthClient(token: string, clientId: string, failOnStatusCode: boolean = true) {
     const response = await this.request.delete(`${this.endpointClient}/${clientId}`, {
       headers: { Authorization: `Bearer ${token}` },
+      failOnStatusCode: failOnStatusCode,
     });
-    expect(response.status()).toBe(200);
     return response.json();
   }
 
@@ -77,17 +81,14 @@ export class OAuthController extends BaseController {
         email: newUserPayload.user.email,
         password: newUserPayload.user.password,
       },
-      failOnStatusCode: true,
     });
-    expect(response.status()).toBe(201);
-    return response.json();
+    return response;
   }
 
-  async getCurrentUserInfo() {
+  async getCurrentUserInfo(failOnStatusCode: boolean = true) {
     const response = await this.request.get(this.endpointUserInfo, {
-      failOnStatusCode: true,
+      failOnStatusCode: failOnStatusCode,
     });
-    expect(response.status()).toBe(200);
     return response;
   }
 }

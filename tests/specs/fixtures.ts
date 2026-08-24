@@ -1,6 +1,23 @@
 import { APIRequestContext, test as base, request as APIRequest } from "@playwright/test";
 import { ApiController } from "../app/api/ApiController";
 import { env } from "../../envValidation";
+import * as fs from "fs";
+import * as path from "path";
+
+const TOKEN_FILE_PATH = path.resolve(__dirname, "../../.token");
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
+    if (typeof payload.exp !== "number") return false;
+    // Check if expired (with 10-second safety margin)
+    return Date.now() >= payload.exp * 1000 - 10000;
+  } catch {
+    return true;
+  }
+}
 
 type Fixtures = {
   options: {
@@ -26,7 +43,19 @@ export const test = base.extend<Fixtures>({
     }
     let contextToDispose: APIRequestContext | null = null;
 
-    const token = await api.oAuthController.getToken(existingUser.existingUserEmail, existingUser.existingUserPass);
+    let token = "";
+    if (fs.existsSync(TOKEN_FILE_PATH)) {
+      const cachedToken = fs.readFileSync(TOKEN_FILE_PATH, "utf8").trim();
+      if (cachedToken && !isTokenExpired(cachedToken)) {
+        token = cachedToken;
+      }
+    }
+
+    if (!token) {
+      token = await api.oAuthController.getToken(existingUser.existingUserEmail, existingUser.existingUserPass);
+      fs.writeFileSync(TOKEN_FILE_PATH, token, "utf8");
+    }
+
     const registerOAuthClientResponse = await api.oAuthController.registerOAuthClient(token, options.scope ?? []);
     const oAuthClientId = registerOAuthClientResponse.clientId;
     const oAuthClientSecret = registerOAuthClientResponse.clientSecret;

@@ -47,3 +47,4 @@ test-results
 playwright.env
 /firefox/
 .playwright/
+.token

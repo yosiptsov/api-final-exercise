@@ -1,16 +1,13 @@
 import { APIRequestContext } from "@playwright/test";
-import { ArticleController } from "./ArticleController";
-import { UserController } from "./UserController";
 import { OAuthController } from "./OAuthController";
+import { DBController } from "./dbController";
 
 export class ApiController {
-  articleController: ArticleController;
-  userController: UserController;
   oAuthController: OAuthController;
+  dbController: DBController;
 
   constructor(request: APIRequestContext) {
-    this.articleController = new ArticleController(request);
-    this.userController = new UserController(request);
     this.oAuthController = new OAuthController(request);
+    this.dbController = new DBController(request);
   }
 }

@@ -1,7 +1,6 @@
 import { test } from "../fixtures";
 import { expect } from "@playwright/test";
 import { TAG } from "../../app/tags/tags";
-import { ApiController } from "../../app/api/ApiController";
 
 test.describe("Services authorized user with only role 'Read'", { tag: [TAG.auth, TAG.authorized] }, () => {
   test.use({
@@ -25,7 +24,7 @@ test.describe("Services authorized user with only role 'Read'", { tag: [TAG.auth
   });
 });
 
-test.describe("Services unavailable for unauthorized user", { tag: [TAG.auth, TAG.nonAuthRequests] }, () => {
+test.describe("Services unavailable for unauthorized user", { tag: [TAG.auth, TAG.notAuthorized] }, () => {
   test.use({
     options: { isAuthorized: false, scope: ["read"] },
   });
