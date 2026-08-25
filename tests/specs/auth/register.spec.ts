@@ -1,10 +1,10 @@
 import { test } from "../fixtures";
 import { expect } from "@playwright/test";
 import { verifyHeaders } from "../../app/utils/commonAssertions";
+import { verifyUserExistsInDB, deleteCreatedUserFromDB } from "../../app/utils/dbTasks";
 import { TAG } from "../../app/tags/tags";
 import { RegisterUserPayload } from "../../app/schemas/User";
 import { faker } from "@faker-js/faker";
-import { prisma } from "../../../src/lib/prisma";
 
 test.describe("Positive Scenarios (Successful Registration)", { tag: [TAG.auth, TAG.authorized] }, () => {
   test.use({
@@ -29,33 +29,18 @@ test.describe("Positive Scenarios (Successful Registration)", { tag: [TAG.auth, 
       expect(response.status(), "Check status").toBe(201);
       expect(response.statusText(), "Check status message").toBe("Created");
     });
+
     verifyHeaders(response);
 
     await test.step("verify created user data", () => {
-      expect(responseJson.id).toBeTruthy();
-      expect(responseJson.name).toBe(newUserPayload.user.name);
-      expect(responseJson.email).toBe(newUserPayload.user.email);
-      expect(responseJson.role).toBe("USER");
+      expect(responseJson.id, "user id is present").toBeTruthy();
+      expect(responseJson.name, "user name is correct").toBe(newUserPayload.user.name);
+      expect(responseJson.email, "user email is correct").toBe(newUserPayload.user.email);
+      expect(responseJson.role, "user role is USER").toBe("USER");
     });
 
-    await test.step("verify created user appeared in DB", async () => {
-      const dbUser = await prisma.user.findUnique({
-        where: { email: newUserPayload.user.email },
-      });
-      expect(dbUser).not.toBeNull();
-      expect(dbUser?.name).toBe(newUserPayload.user.name);
-      expect(dbUser?.role).toBe("USER");
-    });
-
-    await test.step("delete created user from the DB", async () => {
-      await prisma.user.delete({
-        where: { email: newUserPayload.user.email },
-      });
-      const dbUser = await prisma.user.findUnique({
-        where: { email: newUserPayload.user.email },
-      });
-      expect(dbUser).toBeNull();
-    });
+    verifyUserExistsInDB(newUserPayload.user.name, newUserPayload.user.email);
+    deleteCreatedUserFromDB(newUserPayload.user.email);
   });
 });
 
