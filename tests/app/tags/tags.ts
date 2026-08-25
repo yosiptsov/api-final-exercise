@@ -6,4 +6,7 @@ export enum TAG {
   roleWrite = "@roleWrite",
   roleAdmin = "@roleAdmin",
   course = "@course",
+  regression = "@regression",
+  positive = "@positive",
+  negative = "@negative",
 }

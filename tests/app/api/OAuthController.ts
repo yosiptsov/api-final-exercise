@@ -1,6 +1,6 @@
 import { APIRequestContext, expect } from "@playwright/test";
 import { BaseController } from "./BaseController";
-import { RegisterUserPayload } from "../schemas/User";
+import { RegisterUserPayload } from "../schemas/RegisterUser";
 
 export class OAuthController extends BaseController {
   private endpointClient = "/api/oauth/clients";
@@ -74,13 +74,15 @@ export class OAuthController extends BaseController {
     return response.json();
   }
 
-  async registerUser(newUserPayload: RegisterUserPayload) {
+  async registerUser(newUserPayload: any) {
     const response = await this.request.post(this.endpointUserRegister, {
-      data: {
-        name: newUserPayload.user.name,
-        email: newUserPayload.user.email,
-        password: newUserPayload.user.password,
-      },
+      data: newUserPayload?.user
+        ? {
+            name: newUserPayload.user.name,
+            email: newUserPayload.user.email,
+            password: newUserPayload.user.password,
+          }
+        : newUserPayload,
     });
     return response;
   }
