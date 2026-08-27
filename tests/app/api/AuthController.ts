@@ -1,13 +1,11 @@
 import { expect } from "@playwright/test";
 import { BaseController } from "./BaseController";
 
-export class OAuthController extends BaseController {
+export class AuthController extends BaseController {
   private endpointClient = "/api/oauth/clients";
   private endpointToken = "/api/oauth/token";
-  private endpointUserInfo = "/api/oauth/userinfo";
-  private endpointUserRegister = "/api/auth/register";
 
-  async getToken(email: string, password: string, failOnStatusCode: boolean = true) {
+  async getUserToken(email: string, password: string, failOnStatusCode: boolean = true) {
     const response = await this.request.post(this.endpointToken, {
       data: {
         grant_type: "password",
@@ -71,25 +69,5 @@ export class OAuthController extends BaseController {
       failOnStatusCode: failOnStatusCode,
     });
     return response.json();
-  }
-
-  async registerUser(newUserPayload: any) {
-    const response = await this.request.post(this.endpointUserRegister, {
-      data: newUserPayload?.user
-        ? {
-            name: newUserPayload.user.name,
-            email: newUserPayload.user.email,
-            password: newUserPayload.user.password,
-          }
-        : newUserPayload,
-    });
-    return response;
-  }
-
-  async getCurrentUserInfo(failOnStatusCode: boolean = true) {
-    const response = await this.request.get(this.endpointUserInfo, {
-      failOnStatusCode: failOnStatusCode,
-    });
-    return response;
   }
 }

@@ -29,7 +29,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
 
     test.beforeEach(async ({ apiClient }) => {
       //Arrange
-      response = await apiClient.oAuthController.registerUser(newUserPayload);
+      response = await apiClient.userController.registerUser(newUserPayload);
       verifyUserExistsInDB(newUserPayload.user.name, newUserPayload.user.email);
     });
 
@@ -74,7 +74,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
         test(`Register fails when ${description}`, async ({ apiClient }) => {
           //Act
           const response = await test.step("trying to register a user", async () => {
-            return await apiClient.oAuthController.registerUser(payload as any);
+            return await apiClient.userController.registerUser(payload as any);
           });
           //Assert
           await test.step("response status is 400 (Bad Request)", () => {
@@ -94,7 +94,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
         test(`Register fails when ${description}`, async ({ apiClient }) => {
           //Act
           const response = await test.step("trying to register a user", async () => {
-            return await apiClient.oAuthController.registerUser(payload as any);
+            return await apiClient.userController.registerUser(payload as any);
           });
           //Assert
           await test.step("response status is 400 (Bad Request)", () => {
@@ -113,7 +113,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
         test(`Register fails when ${description}`, async ({ apiClient }) => {
           //Act
           const response = await test.step("trying to register a user", async () => {
-            return await apiClient.oAuthController.registerUser(payload as any);
+            return await apiClient.userController.registerUser(payload as any);
           });
           //Assert
           await test.step("response status is 400 (Bad Request)", () => {
@@ -132,7 +132,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
         test(`Register fails when ${description}`, async ({ apiClient }) => {
           //Act
           const response = await test.step("trying to register a user", async () => {
-            return await apiClient.oAuthController.registerUser(payload as any);
+            return await apiClient.userController.registerUser(payload as any);
           });
           //Assert
           await test.step("response status is 400 (Bad Request)", () => {
@@ -164,7 +164,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
 
     test.beforeEach(async ({ apiClient }) => {
       //Arrange
-      firstUserResponse = await apiClient.oAuthController.registerUser(newUserPayload);
+      firstUserResponse = await apiClient.userController.registerUser(newUserPayload);
       verifyUserExistsInDB(newUserPayload.user.name, newUserPayload.user.email);
     });
 
@@ -175,7 +175,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
     test("UserReg 06: Duplicate email registration", async ({ apiClient }) => {
       //Act
       const secondUserResponse = await test.step("trying to register a user already existing in DB", async () => {
-        return await apiClient.oAuthController.registerUser(newUserPayload);
+        return await apiClient.userController.registerUser(newUserPayload);
       });
       // Assert
       await test.step("response status is 409 (Conflict)", () => {

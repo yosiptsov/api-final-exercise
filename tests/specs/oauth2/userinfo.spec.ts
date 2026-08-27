@@ -19,7 +19,7 @@ test.describe("GET /api/oauth/userinfo - Test Coverage Suite", () => {
         //Arrange
         //Act
         const response = await test.step("getting current user info", async () => {
-          return await apiClient.oAuthController.getCurrentUserInfo();
+          return await apiClient.userController.getCurrentUserInfo();
         });
         const responseJson = await response.json();
 
@@ -56,7 +56,7 @@ test.describe("GET /api/oauth/userinfo - Test Coverage Suite", () => {
       //Arrange
       //Act
       const response = await test.step("getting current user info", async () => {
-        return await apiClient.oAuthController.getCurrentUserInfo(false);
+        return await apiClient.userController.getCurrentUserInfo(false);
       });
       const responseJson = await response.json();
 
@@ -95,10 +95,10 @@ test.describe("GET /api/oauth/userinfo - Test Coverage Suite", () => {
           password: faker.internet.password({ length: 10 }) + "A1",
         },
       };
-      await apiClient.oAuthController.registerUser(newUserPayload);
+      await apiClient.userController.registerUser(newUserPayload);
       verifyUserExistsInDB(newUserPayload.user.name, newUserPayload.user.email);
 
-      userToken = await apiClient.oAuthController.getToken(newUserPayload.user.email, newUserPayload.user.password);
+      userToken = await apiClient.authController.getUserToken(newUserPayload.user.email, newUserPayload.user.password);
     });
 
     test.afterEach(async () => {

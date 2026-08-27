@@ -55,7 +55,7 @@ export const test = base.extend<Fixtures>({
     }
 
     if (!token) {
-      token = await api.oAuthController.getToken(existingUser.existingUserEmail, existingUser.existingUserPass);
+      token = await api.authController.getUserToken(existingUser.existingUserEmail, existingUser.existingUserPass);
       fs.writeFileSync(TOKEN_FILE_PATH, token, "utf8");
     }
 
@@ -71,10 +71,10 @@ export const test = base.extend<Fixtures>({
       return;
     }
 
-    const registerOAuthClientResponse = await api.oAuthController.registerOAuthClient(token, options.scope ?? []);
+    const registerOAuthClientResponse = await api.authController.registerOAuthClient(token, options.scope ?? []);
     const oAuthClientId = registerOAuthClientResponse.clientId;
     const oAuthClientSecret = registerOAuthClientResponse.clientSecret;
-    const oAuthClientToken = await api.oAuthController.getOAuthClientToken(
+    const oAuthClientToken = await api.authController.getOAuthClientToken(
       token,
       oAuthClientId,
       oAuthClientSecret,
@@ -91,7 +91,7 @@ export const test = base.extend<Fixtures>({
 
     await use(authContext);
     // teardown
-    await api.oAuthController.deactivateOAuthClient(token, oAuthClientId);
+    await api.authController.deactivateOAuthClient(token, oAuthClientId);
     await deleteOAuthClient(oAuthClientId);
     await contextToDispose.dispose();
   },

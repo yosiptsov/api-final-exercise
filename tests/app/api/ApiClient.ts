@@ -1,13 +1,16 @@
 import { APIRequestContext } from "@playwright/test";
-import { OAuthController } from "./OAuthController";
+import { AuthController } from "./AuthController";
+import { UserController } from "./UserController";
 import { CoursesController } from "./CoursesController";
 
 export class ApiClient {
-  oAuthController: OAuthController;
+  authController: AuthController;
+  userController: UserController;
   coursesController: CoursesController;
 
   constructor(request: APIRequestContext) {
-    this.oAuthController = new OAuthController(request);
+    this.authController = new AuthController(request);
+    this.userController = new UserController(request);
     this.coursesController = new CoursesController(request);
   }
 }
