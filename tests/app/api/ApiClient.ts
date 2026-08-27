@@ -1,7 +1,7 @@
 import { APIRequestContext } from "@playwright/test";
 import { OAuthController } from "./OAuthController";
 
-export class ApiController {
+export class ApiClient {
   oAuthController: OAuthController;
 
   constructor(request: APIRequestContext) {

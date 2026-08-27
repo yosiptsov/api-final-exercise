@@ -1,5 +1,5 @@
 import { test } from "../fixtures";
-import { APIResponse, expect } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { TAG } from "../../app/tags/tags";
 import { ClientInfoSchema, UserInfoSchema } from "../../app/schemas/UserInfo";
 import { verifyHeaders } from "../../app/utils/commonAssertions";
@@ -16,11 +16,11 @@ test.describe("GET /api/oauth/userinfo - Test Coverage Suite", () => {
         options: { isAuthorized: true, scope: ["read"] },
       });
 
-      test("oauth2 01: Service returns current user data", async ({ apiController }) => {
+      test("oauth2 01: Service returns current user data", async ({ apiClient }) => {
         //Arrange
         //Act
         const response = await test.step("getting current user info", async () => {
-          return await apiController.oAuthController.getCurrentUserInfo();
+          return await apiClient.oAuthController.getCurrentUserInfo();
         });
         const responseJson = await response.json();
 
@@ -53,11 +53,11 @@ test.describe("GET /api/oauth/userinfo - Test Coverage Suite", () => {
       options: { isAuthorized: false },
     });
 
-    test("oauth2 02: returns 401 when Authorization header is missing", async ({ apiController }) => {
+    test("oauth2 02: returns 401 when Authorization header is missing", async ({ apiClient }) => {
       //Arrange
       //Act
       const response = await test.step("getting current user info", async () => {
-        return await apiController.oAuthController.getCurrentUserInfo(false);
+        return await apiClient.oAuthController.getCurrentUserInfo(false);
       });
       const responseJson = await response.json();
 
@@ -87,7 +87,7 @@ test.describe("GET /api/oauth/userinfo - Test Coverage Suite", () => {
     };
     let userToken: string;
 
-    test.beforeEach(async ({ apiController }) => {
+    test.beforeEach(async ({ apiClient }) => {
       //Arrange
       newUserPayload = {
         user: {
@@ -96,10 +96,10 @@ test.describe("GET /api/oauth/userinfo - Test Coverage Suite", () => {
           password: faker.internet.password({ length: 10 }) + "A1",
         },
       };
-      await apiController.oAuthController.registerUser(newUserPayload);
+      await apiClient.oAuthController.registerUser(newUserPayload);
       verifyUserExistsInDB(newUserPayload.user.name, newUserPayload.user.email);
 
-      userToken = await apiController.oAuthController.getToken(newUserPayload.user.email, newUserPayload.user.password);
+      userToken = await apiClient.oAuthController.getToken(newUserPayload.user.email, newUserPayload.user.password);
     });
 
     test.afterEach(async () => {
