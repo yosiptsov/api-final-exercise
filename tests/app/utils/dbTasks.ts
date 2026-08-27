@@ -19,3 +19,13 @@ export async function deleteUserFromDB(userEmail: string) {
   });
   expect(dbUser, "verify user is not present in DB").toBeNull();
 }
+
+export async function deleteOAuthClient(oAuthClientId: string) {
+  await prisma.oAuthClient.delete({
+    where: { clientId: oAuthClientId },
+  });
+  const dbClient = await prisma.oAuthClient.findUnique({
+    where: { clientId: oAuthClientId },
+  });
+  expect(dbClient, "verify client is not present in DB").toBeNull();
+}
