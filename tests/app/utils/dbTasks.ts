@@ -1,4 +1,4 @@
-import { APIResponse, expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { prisma } from "@/lib/prisma";
 
 export async function verifyUserExistsInDB(userName: string, userEmail: string) {
@@ -10,7 +10,7 @@ export async function verifyUserExistsInDB(userName: string, userEmail: string) 
   expect(dbUser?.role, "verify created user role").toBe("USER");
 }
 
-export async function deleteCreatedUserFromDB(userEmail: string) {
+export async function deleteUserFromDB(userEmail: string) {
   await prisma.user.delete({
     where: { email: userEmail },
   });

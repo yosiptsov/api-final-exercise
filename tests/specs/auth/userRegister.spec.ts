@@ -1,7 +1,7 @@
 import { test } from "../fixtures";
 import { APIRequest, APIResponse, expect } from "@playwright/test";
 import { verifyHeaders } from "../../app/utils/commonAssertions";
-import { verifyUserExistsInDB, deleteCreatedUserFromDB } from "../../app/utils/dbTasks";
+import { verifyUserExistsInDB, deleteUserFromDB } from "../../app/utils/dbTasks";
 import { TAG } from "../../app/tags/tags";
 import { RegisterUserPayload, RegisterUserResponseSchema } from "../../app/schemas/RegisterUser";
 import {
@@ -34,7 +34,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
     });
 
     test.afterEach(async () => {
-      await deleteCreatedUserFromDB(newUserPayload.user.email);
+      await deleteUserFromDB(newUserPayload.user.email);
     });
 
     test("UserReg 01: A new user can be registered", async () => {
@@ -169,7 +169,7 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
     });
 
     test.afterEach(async () => {
-      await deleteCreatedUserFromDB(newUserPayload.user.email);
+      await deleteUserFromDB(newUserPayload.user.email);
     });
 
     test("UserReg 06: Duplicate email registration", async ({ apiController }) => {

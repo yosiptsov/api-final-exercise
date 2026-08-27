@@ -22,4 +22,3 @@ export const ClientInfoSchema = z.object({
 
 // TypeScript type for the client info response
 export type ClientInfo = z.infer<typeof ClientInfoSchema>;
-
