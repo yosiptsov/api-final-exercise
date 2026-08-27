@@ -1,5 +1,6 @@
 import { APIRequestContext, test as base, request as APIRequest } from "@playwright/test";
 import { ApiController } from "../app/api/ApiController";
+import { deleteOAuthClient } from "../app/utils/dbTasks";
 import { env } from "../../envValidation";
 import * as fs from "fs";
 import * as path from "path";
@@ -23,6 +24,7 @@ type Fixtures = {
   options: {
     isAuthorized: boolean;
     scope?: string[];
+    isDeleteOAuthClient?: boolean;
   };
   existingUser: {
     existingUserEmail: string;
@@ -33,7 +35,7 @@ type Fixtures = {
 };
 
 export const test = base.extend<Fixtures>({
-  options: { isAuthorized: true, scope: ["read", "write"] },
+  options: { isAuthorized: true, scope: ["read", "write"], isDeleteOAuthClient: true },
   existingUser: { existingUserEmail: env.ADMIN_EMAIL, existingUserPass: env.ADMIN_PASS },
   authRequest: async ({ request, options, existingUser }, use) => {
     const api = new ApiController(request);
@@ -77,6 +79,7 @@ export const test = base.extend<Fixtures>({
     await use(authContext);
     // teardown
     await api.oAuthController.deactivateOAuthClient(token, oAuthClientId);
+    await deleteOAuthClient(oAuthClientId);
     await contextToDispose.dispose();
   },
   apiController: async ({ authRequest }, use) => {
