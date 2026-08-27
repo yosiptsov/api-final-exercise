@@ -25,6 +25,7 @@ type Fixtures = {
     isAuthorized: boolean;
     scope?: string[];
     isDeleteOAuthClient?: boolean;
+    asUser?: boolean;
   };
   existingUser: {
     existingUserEmail: string;
@@ -35,7 +36,7 @@ type Fixtures = {
 };
 
 export const test = base.extend<Fixtures>({
-  options: { isAuthorized: true, scope: ["read", "write"], isDeleteOAuthClient: true },
+  options: { isAuthorized: true, scope: ["read", "write", "admin"], isDeleteOAuthClient: true, asUser: false },
   existingUser: { existingUserEmail: env.ADMIN_EMAIL, existingUserPass: env.ADMIN_PASS },
   authRequest: async ({ request, options, existingUser }, use) => {
     const api = new ApiClient(request);
@@ -56,6 +57,18 @@ export const test = base.extend<Fixtures>({
     if (!token) {
       token = await api.oAuthController.getToken(existingUser.existingUserEmail, existingUser.existingUserPass);
       fs.writeFileSync(TOKEN_FILE_PATH, token, "utf8");
+    }
+
+    if (options.asUser) {
+      const authContext = await APIRequest.newContext({
+        extraHTTPHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      contextToDispose = authContext;
+      await use(authContext);
+      await contextToDispose.dispose();
+      return;
     }
 
     const registerOAuthClientResponse = await api.oAuthController.registerOAuthClient(token, options.scope ?? []);

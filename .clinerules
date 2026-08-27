@@ -15,7 +15,7 @@
 - Divide each test by the AAA principle (`// Arrange`, `// Act`, `// Assert`) and mark these blocks with a comment.
 - Use the `faker` library to generate test data. Prefer its functions related to eCommerce, shops, orders, and shipments.
 - Organize tests in `test.describe` blocks by shared properties, such as `"Error responses"`, `"Authorized"`, `"Unauthorized"`, etc.
-- Use test tags, preferably at the `test.describe` level. Import tags from the enum: `import { TAG } from "../../app/tags/tags";` and add them if you need. Example: `test.describe("Positive Scenarios", { tag: [TAG.auth, TAG.positive] }, ...)`
+- Use test tags, preferably at the `test.describe` level. Import tags from the enum: `import { TAG } from "../../app/tags/tags";`. **CRITICAL: You MUST always add `TAG.aiGenerated` additionally to other tags for all tests you generate.** Example: `test.describe("Positive Scenarios", { tag: [TAG.auth, TAG.positive, TAG.aiGenerated] }, ...)`
 - **DATABASE CLEANUP:** When creating tests that mutate data, always use functions from `tests/app/utils/dbTasks.ts` in the `test.afterEach` hook to clean up the database.
 
 # API References

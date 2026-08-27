@@ -1,6 +1,5 @@
-import { APIRequestContext, expect } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { BaseController } from "./BaseController";
-import { RegisterUserPayload } from "../schemas/RegisterUser";
 
 export class OAuthController extends BaseController {
   private endpointClient = "/api/oauth/clients";
