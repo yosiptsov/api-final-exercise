@@ -1,5 +1,5 @@
-import { test } from "../fixtures";
-import { APIResponse, expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
+import { APIResponse } from "@playwright/test";
 import { verifyHeaders } from "../../app/utils/commonAssertions";
 import { verifyUserExistsInDB, deleteUserFromDB } from "../../app/utils/dbTasks";
 import { TAG } from "../../app/tags/tags";

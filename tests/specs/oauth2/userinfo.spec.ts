@@ -1,5 +1,4 @@
-import { test } from "../fixtures";
-import { expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
 import { TAG } from "../../app/tags/tags";
 import { ClientInfoSchema, UserInfoSchema } from "../../app/schemas/UserInfo";
 import { verifyHeaders } from "../../app/utils/commonAssertions";

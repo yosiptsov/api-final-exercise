@@ -1,5 +1,4 @@
-import { test } from "../fixtures";
-import { expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
 import { TAG } from "../../app/tags/tags";
 import { CreateCoursePayload } from "../../app/schemas/Courses";
 import { CourseResponseSchema } from "../../app/schemas/Courses";

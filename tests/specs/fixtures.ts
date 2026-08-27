@@ -100,3 +100,5 @@ export const test = base.extend<Fixtures>({
     await use(controller);
   },
 });
+
+export { expect } from "@playwright/test";
