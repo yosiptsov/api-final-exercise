@@ -9,5 +9,7 @@ export enum TAG {
   regression = "@regression",
   positive = "@positive",
   negative = "@negative",
+  passToken = "@passToken",
+  clientToken = "@clientToken",
   aiGenerated = "aiGenerated",
 }

@@ -30,6 +30,13 @@ export class CoursesController extends BaseController {
   }
 
   async deleteCourse(courseId: string, failOnStatusCode: boolean = true) {
+    const response = await this.request.delete(`${this.endpoint}/${courseId}`, {
+      failOnStatusCode: failOnStatusCode,
+    });
+    return response;
+  }
+
+  async publishCourse(courseId: string, failOnStatusCode: boolean = true) {
     const response = await this.request.patch(`${this.endpoint}/${courseId}/publish`, {
       failOnStatusCode: failOnStatusCode,
     });

@@ -1,11 +1,12 @@
-import { APIRequestContext, test as base, request as APIRequest } from "@playwright/test";
+import { APIRequestContext, test as base, request as pwRequest } from "@playwright/test";
 import { ApiClient } from "../app/api/ApiClient";
 import { deleteOAuthClient } from "../app/utils/dbTasks";
 import { env } from "../../envValidation";
 import * as fs from "fs";
 import * as path from "path";
 
-const TOKEN_FILE_PATH = path.resolve(__dirname, "../../.token");
+const ADMIN_TOKEN_FILE_PATH = path.resolve(__dirname, "../../.adminToken");
+const USER_TOKEN_FILE_PATH = path.resolve(__dirname, "../../.userToken");
 
 function isTokenExpired(token: string): boolean {
   try {
@@ -20,84 +21,111 @@ function isTokenExpired(token: string): boolean {
   }
 }
 
+async function getCachedToken(api: ApiClient, tokenFilePath: string, email: string, pass: string): Promise<string> {
+  let token = "";
+  if (fs.existsSync(tokenFilePath)) {
+    const tokenStr = fs.readFileSync(tokenFilePath, "utf8").trim();
+    if (tokenStr && !isTokenExpired(tokenStr)) {
+      token = tokenStr;
+    }
+  }
+
+  if (!token) {
+    token = await api.authController.getUserToken(email, pass);
+    fs.writeFileSync(tokenFilePath, token, "utf8");
+  }
+
+  return token;
+}
+
 type Fixtures = {
-  options: {
-    isAuthorized: boolean;
+  adminRequest: APIRequestContext;
+  userRequest: APIRequestContext;
+  clientRequest: APIRequestContext;
+
+  adminApi: ApiClient;
+  userApi: ApiClient;
+  anonymousApi: ApiClient;
+  clientApi: ApiClient;
+  clientApiOptions: {
     scope?: string[];
-    isDeleteOAuthClient?: boolean;
-    asUser?: boolean;
   };
-  existingUser: {
-    existingUserEmail: string;
-    existingUserPass: string;
-  };
-  authRequest: APIRequestContext;
-  apiClient: ApiClient;
 };
 
 export const test = base.extend<Fixtures>({
-  options: { isAuthorized: true, scope: ["read", "write", "admin"], isDeleteOAuthClient: true, asUser: false },
-  existingUser: { existingUserEmail: env.ADMIN_EMAIL, existingUserPass: env.ADMIN_PASS },
-  authRequest: async ({ request, options, existingUser }, use) => {
+  adminRequest: async ({ request }, use) => {
     const api = new ApiClient(request);
-    if (!options.isAuthorized) {
-      await use(request);
-      return;
-    }
-    let contextToDispose: APIRequestContext | null = null;
+    const token = await getCachedToken(api, ADMIN_TOKEN_FILE_PATH, env.ADMIN_EMAIL, env.ADMIN_PASS);
 
+    const adminRequest = await pwRequest.newContext({
+      extraHTTPHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    await use(adminRequest);
+
+    await adminRequest.dispose();
+  },
+
+  userRequest: async ({ request }, use) => {
+    const api = new ApiClient(request);
+    const token = await getCachedToken(api, USER_TOKEN_FILE_PATH, env.USER_EMAIL, env.USER_PASS);
+
+    const userRequest = await pwRequest.newContext({
+      extraHTTPHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    await use(userRequest);
+
+    await userRequest.dispose();
+  },
+  clientApiOptions: { scope: ["read"] },
+  clientRequest: async ({ request, clientApiOptions }, use) => {
+    const api = new ApiClient(request);
     let token = "";
-    if (fs.existsSync(TOKEN_FILE_PATH)) {
-      const cachedToken = fs.readFileSync(TOKEN_FILE_PATH, "utf8").trim();
-      if (cachedToken && !isTokenExpired(cachedToken)) {
-        token = cachedToken;
-      }
-    }
+    token = await api.authController.getUserToken(env.ADMIN_EMAIL, env.ADMIN_PASS);
 
-    if (!token) {
-      token = await api.authController.getUserToken(existingUser.existingUserEmail, existingUser.existingUserPass);
-      fs.writeFileSync(TOKEN_FILE_PATH, token, "utf8");
-    }
-
-    if (options.asUser) {
-      const authContext = await APIRequest.newContext({
-        extraHTTPHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      contextToDispose = authContext;
-      await use(authContext);
-      await contextToDispose.dispose();
-      return;
-    }
-
-    const registerOAuthClientResponse = await api.authController.registerOAuthClient(token, options.scope ?? []);
+    const registerOAuthClientResponse = await api.authController.registerOAuthClient(
+      token,
+      clientApiOptions.scope ?? [],
+    );
     const oAuthClientId = registerOAuthClientResponse.clientId;
     const oAuthClientSecret = registerOAuthClientResponse.clientSecret;
     const oAuthClientToken = await api.authController.getOAuthClientToken(
       token,
       oAuthClientId,
       oAuthClientSecret,
-      options.scope ?? [],
+      clientApiOptions.scope ?? [],
     );
 
-    const authContext = await APIRequest.newContext({
+    const clientRequest = await pwRequest.newContext({
       extraHTTPHeaders: {
         Authorization: `Bearer ${oAuthClientToken}`,
       },
     });
 
-    contextToDispose = authContext;
-
-    await use(authContext);
-    // teardown
+    await use(clientRequest);
     await api.authController.deactivateOAuthClient(token, oAuthClientId);
     await deleteOAuthClient(oAuthClientId);
-    await contextToDispose.dispose();
+    await clientRequest.dispose();
   },
-  apiClient: async ({ authRequest }, use) => {
-    const controller = new ApiClient(authRequest);
-    await use(controller);
+
+  userApi: async ({ userRequest }, use) => {
+    await use(new ApiClient(userRequest));
+  },
+
+  adminApi: async ({ adminRequest }, use) => {
+    await use(new ApiClient(adminRequest));
+  },
+
+  anonymousApi: async ({ request }, use) => {
+    await use(new ApiClient(request));
+  },
+  clientApi: async ({ clientRequest }, use) => {
+    await use(new ApiClient(clientRequest));
   },
 });
 

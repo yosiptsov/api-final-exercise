@@ -17,6 +17,7 @@ export class AuthController extends BaseController {
 
     const responseBody = await response.json();
     expect(responseBody.access_token).toBeTruthy();
+    console.log("!!!!!!!!!!" + responseBody.access_token);
     return responseBody.access_token;
   }
 

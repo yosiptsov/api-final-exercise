@@ -1,4 +1,4 @@
-import { test, expect } from "../fixtures";
+import { test, expect } from "..//fixtures";
 import { APIResponse } from "@playwright/test";
 import { verifyHeaders } from "../../app/utils/commonAssertions";
 import { verifyUserExistsInDB, deleteUserFromDB } from "../../app/utils/dbTasks";
@@ -14,10 +14,6 @@ import { faker } from "@faker-js/faker";
 
 test.describe("POST /api/auth/register - Test Coverage Suite", () => {
   test.describe("Positive Scenarios (Successful Registration)", { tag: [TAG.positive, TAG.regression] }, () => {
-    test.use({
-      options: { isAuthorized: false, scope: [] },
-    });
-
     const newUserPayload: RegisterUserPayload = {
       user: {
         name: faker.person.fullName(),
@@ -27,9 +23,9 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
     };
     let response: APIResponse;
 
-    test.beforeEach(async ({ apiClient }) => {
+    test.beforeEach(async ({ anonymousApi }) => {
       //Arrange
-      response = await apiClient.userController.registerUser(newUserPayload);
+      response = await anonymousApi.userController.registerUser(newUserPayload);
       verifyUserExistsInDB(newUserPayload.user.name, newUserPayload.user.email);
     });
 
@@ -66,15 +62,12 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
   });
 
   test.describe("Negative Validation Scenarios - 400 Bad Request", () => {
-    test.use({
-      options: { isAuthorized: false, scope: [] },
-    });
     test.describe("UserReg 02: User payload missing required fields", { tag: [TAG.negative] }, () => {
       for (const { description, payload } of userWithMissedFields) {
-        test(`Register fails when ${description}`, async ({ apiClient }) => {
+        test(`Register fails when ${description}`, async ({ anonymousApi }) => {
           //Act
           const response = await test.step("trying to register a user", async () => {
-            return await apiClient.userController.registerUser(payload as any);
+            return await anonymousApi.userController.registerUser(payload as any);
           });
           //Assert
           await test.step("response status is 400 (Bad Request)", () => {
@@ -91,10 +84,10 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
 
     test.describe("UserReg 03: Invalid name constraints  ", { tag: [TAG.negative] }, () => {
       for (const { description, payload } of invalidUserName) {
-        test(`Register fails when ${description}`, async ({ apiClient }) => {
+        test(`Register fails when ${description}`, async ({ anonymousApi }) => {
           //Act
           const response = await test.step("trying to register a user", async () => {
-            return await apiClient.userController.registerUser(payload as any);
+            return await anonymousApi.userController.registerUser(payload as any);
           });
           //Assert
           await test.step("response status is 400 (Bad Request)", () => {
@@ -110,10 +103,10 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
     });
     test.describe("UserReg 04: Invalid email format", { tag: [TAG.negative] }, () => {
       for (const { description, payload } of invalidUserEmail) {
-        test(`Register fails when ${description}`, async ({ apiClient }) => {
+        test(`Register fails when ${description}`, async ({ anonymousApi }) => {
           //Act
           const response = await test.step("trying to register a user", async () => {
-            return await apiClient.userController.registerUser(payload as any);
+            return await anonymousApi.userController.registerUser(payload as any);
           });
           //Assert
           await test.step("response status is 400 (Bad Request)", () => {
@@ -129,10 +122,10 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
     });
     test.describe("UserReg 05: Invalid password complexity", { tag: [TAG.negative, TAG.regression] }, () => {
       for (const { description, payload } of invalidPasswordComplexity) {
-        test(`Register fails when ${description}`, async ({ apiClient }) => {
+        test(`Register fails when ${description}`, async ({ anonymousApi }) => {
           //Act
           const response = await test.step("trying to register a user", async () => {
-            return await apiClient.userController.registerUser(payload as any);
+            return await anonymousApi.userController.registerUser(payload as any);
           });
           //Assert
           await test.step("response status is 400 (Bad Request)", () => {
@@ -149,10 +142,6 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
   });
 
   test.describe("Business Logic / Conflict Scenarios - 409 Conflicts", { tag: [TAG.negative, TAG.regression] }, () => {
-    test.use({
-      options: { isAuthorized: false, scope: [] },
-    });
-
     const newUserPayload: RegisterUserPayload = {
       user: {
         name: faker.person.fullName(),
@@ -162,9 +151,9 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
     };
     let firstUserResponse: APIResponse;
 
-    test.beforeEach(async ({ apiClient }) => {
+    test.beforeEach(async ({ anonymousApi }) => {
       //Arrange
-      firstUserResponse = await apiClient.userController.registerUser(newUserPayload);
+      firstUserResponse = await anonymousApi.userController.registerUser(newUserPayload);
       verifyUserExistsInDB(newUserPayload.user.name, newUserPayload.user.email);
     });
 
@@ -172,10 +161,10 @@ test.describe("POST /api/auth/register - Test Coverage Suite", () => {
       await deleteUserFromDB(newUserPayload.user.email);
     });
 
-    test("UserReg 06: Duplicate email registration", async ({ apiClient }) => {
+    test("UserReg 06: Duplicate email registration", async ({ anonymousApi }) => {
       //Act
       const secondUserResponse = await test.step("trying to register a user already existing in DB", async () => {
-        return await apiClient.userController.registerUser(newUserPayload);
+        return await anonymousApi.userController.registerUser(newUserPayload);
       });
       // Assert
       await test.step("response status is 409 (Conflict)", () => {
