@@ -45,6 +45,25 @@ export const CreateCoursePayloadSchema = z.object({
 
 export type CreateCoursePayload = z.infer<typeof CreateCoursePayloadSchema>;
 
+// Schema for updating a course payload (PATCH /api/courses/{id})
+export const UpdateCoursePayloadSchema = z.object({
+  title: z.string().min(3).optional(),
+  description: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
+  price: z.union([z.number(), z.string()]).nullable().optional(),
+  isPublished: z.boolean().optional(),
+  isListed: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  outcomes: z.string().nullable().optional(),
+  requirements: z.string().nullable().optional(),
+  authorName: z.string().nullable().optional(),
+  authorRole: z.string().nullable().optional(),
+  categoryId: z.string().optional(),
+});
+
+export type UpdateCoursePayload = z.infer<typeof UpdateCoursePayloadSchema>;
+
 // Schema for the course response (POST /api/courses response & general Course details)
 export const CourseResponseSchema = z.object({
   id: z.string(),

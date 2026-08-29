@@ -1,6 +1,6 @@
 import { APIRequestContext, test as base, request as APIRequest } from "@playwright/test";
 import { ApiClient } from "../app/api/ApiClient";
-import { deleteOAuthClient } from "../app/utils/dbTasks";
+import { deleteOAuthClientFromDb } from "../app/utils/dbTasks";
 import { env } from "../../envValidation";
 import * as fs from "fs";
 import * as path from "path";
@@ -92,7 +92,7 @@ export const test = base.extend<Fixtures>({
     await use(authContext);
     // teardown
     await api.authController.deactivateOAuthClient(token, oAuthClientId);
-    await deleteOAuthClient(oAuthClientId);
+    await deleteOAuthClientFromDb(oAuthClientId);
     await contextToDispose.dispose();
   },
   apiClient: async ({ authRequest }, use) => {

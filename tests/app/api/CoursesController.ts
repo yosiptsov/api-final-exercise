@@ -1,5 +1,5 @@
 import { BaseController } from "./BaseController";
-import { CreateCoursePayload } from "../schemas/Courses";
+import { CreateCoursePayload, UpdateCoursePayload } from "../schemas/Courses";
 
 export class CoursesController extends BaseController {
   private endpoint = "/api/courses";
@@ -21,7 +21,7 @@ export class CoursesController extends BaseController {
     return response;
   }
 
-  async updateCourse(courseId: string, coursePayload: Partial<CreateCoursePayload>, failOnStatusCode: boolean = true) {
+  async updateCourse(courseId: string, coursePayload: UpdateCoursePayload, failOnStatusCode: boolean = true) {
     const response = await this.request.patch(`${this.endpoint}/${courseId}`, {
       data: coursePayload,
       failOnStatusCode: failOnStatusCode,
