@@ -8,8 +8,8 @@ const envSchema = z.object({
   BASE_URL: z.url(),
   ADMIN_EMAIL: z.email("Admin email is required for tests!"),
   ADMIN_PASS: z.string("Admin password is required for tests!"),
-  USER_EMAIL: z.email("Admin email is required for tests!"),
-  USER_PASS: z.string("Admin password is required for tests!"),
+  USER_EMAIL: z.email("User email is required for tests!"),
+  USER_PASS: z.string("User password is required for tests!"),
 });
 
 export const env = envSchema.parse(process.env);

@@ -43,9 +43,11 @@ jobs:
       DATABASE_URL: ${{ vars.DATABASE_URL }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       UPLOAD_DIR: ${{ vars.UPLOAD_DIR }}
-      BASE_URL: ${{ github.event.inputs.url }}
+      BASE_URL: ${{ github.event.inputs.url || 'http://localhost:3000' }}
       ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
       ADMIN_PASS: ${{ secrets.ADMIN_PASS }}
+      USER_EMAIL: ${{ vars.USER_EMAIL }}
+      USER_PASS: ${{ secrets.USER_PASS }}
 
     # Обмежує час виконання джобу 60 хвилинами, щоб уникнути нескінченного зависання
     # і зайвого витрачання хвилин GitHub Actions.
@@ -110,7 +112,7 @@ jobs:
       # Запускає Playwright-тести з кількістю паралельних воркерів, переданою через параметр.
       # Більше воркерів — швидший запуск, але більше навантаження на локальний сервер і БД.
       - name: Run api tests
-        run: npx playwright test --workers=${{ github.event.inputs.workersCount }}
+        run: npx playwright test --workers=${{ github.event.inputs.workersCount || 3 }}
 
       # Зберігає HTML-звіт Playwright як артефакт джобу навіть якщо тести впали (if: !cancelled()).
       # Зберігається 30 днів — достатньо для аналізу флапаючих тестів і розбору інцидентів.
