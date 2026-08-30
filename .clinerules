@@ -24,4 +24,3 @@
 # API References
 
 - **OpenAPI Documentation:** The primary documentation for the API can be found at `http://localhost:3000/api/docs`.
-- _(Legacy note)_: You don't have access to the old openapi documentation by URL https://bifrost-dev.novapost.work/docs/api#/, it requires a vpn connection. You can find the documentation exported to JSON file here: `.antigravity/skills/create-api-tests/references/openapi-docs.json`. API endpoints are available without vpn, so you are able to run requests.

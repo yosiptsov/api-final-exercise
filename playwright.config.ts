@@ -8,8 +8,9 @@ const rawBaseURL = process.env.BASE_URL || "http://localhost:3000/";
 const baseURL = rawBaseURL.endsWith("/") ? rawBaseURL : `${rawBaseURL}/`;
 
 export default defineConfig({
+  globalSetup: "./global.setup.ts",
   testDir: "./tests",
-  fullyParallel: false,
+  fullyParallel: true,
   retries: 0,
   use: {
     baseURL,
