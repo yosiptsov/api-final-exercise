@@ -2,8 +2,8 @@ import { expect } from "@playwright/test";
 import { BaseController } from "./BaseController";
 
 export class AuthController extends BaseController {
-  private endpointClient = "/api/oauth/clients";
-  private endpointToken = "/api/oauth/token";
+  private endpointClient = "api/oauth/clients";
+  private endpointToken = "api/oauth/token";
 
   async getUserToken(email: string, password: string, failOnStatusCode: boolean = true) {
     const response = await this.request.post(this.endpointToken, {

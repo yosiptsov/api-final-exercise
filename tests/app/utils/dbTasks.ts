@@ -39,3 +39,25 @@ export async function deleteTagFromDb(tagId: string) {
     // Ignore error if tag is already deleted
   }
 }
+
+export async function deleteLearningPathFromDb(id: string) {
+  try {
+    const lp = await prisma.learningPath.findUnique({
+      where: { id },
+      select: { instructorId: true, videoId: true },
+    });
+    if (lp) {
+      await prisma.learningPath.delete({
+        where: { id },
+      });
+      if (lp.instructorId) {
+        await prisma.instructor.delete({ where: { id: lp.instructorId } }).catch(() => {});
+      }
+      if (lp.videoId) {
+        await prisma.youTubeVideo.delete({ where: { id: lp.videoId } }).catch(() => {});
+      }
+    }
+  } catch (error) {
+    // Ignore error if learning path is already deleted
+  }
+}

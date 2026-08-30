@@ -2,7 +2,7 @@ import { BaseController } from "./BaseController";
 import { CreateCoursePayload, UpdateCoursePayload } from "../schemas/Courses";
 
 export class CoursesController extends BaseController {
-  private endpoint = "/api/courses";
+  private endpoint = "api/courses";
 
   async createCourse(coursePayload: CreateCoursePayload, failOnStatusCode: boolean = true) {
     const response = await this.request.post(this.endpoint, {

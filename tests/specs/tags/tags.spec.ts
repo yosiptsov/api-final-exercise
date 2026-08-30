@@ -98,11 +98,11 @@ test.describe("/api/tags Endpoints", () => {
 
         // Act
         await test.step("Send invalid payloads", async () => {
-          response1 = await adminApi.tagsController.request.post("/api/tags", {
+          response1 = await adminApi.tagsController.request.post("api/tags", {
             data: {},
             failOnStatusCode: false,
           });
-          response2 = await adminApi.tagsController.request.post("/api/tags", {
+          response2 = await adminApi.tagsController.request.post("api/tags", {
             data: { name: 123 },
             failOnStatusCode: false,
           });

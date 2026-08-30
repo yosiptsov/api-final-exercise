@@ -2,8 +2,8 @@ import { expect } from "@playwright/test";
 import { BaseController } from "./BaseController";
 
 export class UserController extends BaseController {
-  private endpointUserInfo = "/api/oauth/userinfo";
-  private endpointUserRegister = "/api/auth/register";
+  private endpointUserInfo = "api/oauth/userinfo";
+  private endpointUserRegister = "api/auth/register";
 
   async registerUser(newUserPayload: any) {
     const response = await this.request.post(this.endpointUserRegister, {

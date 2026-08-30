@@ -4,12 +4,15 @@ import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
+const rawBaseURL = process.env.BASE_URL || "http://localhost:3000/";
+const baseURL = rawBaseURL.endsWith("/") ? rawBaseURL : `${rawBaseURL}/`;
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,
   retries: 0,
   use: {
-    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    baseURL,
   },
   reporter: [["html", { open: "never" }]],
 
@@ -18,7 +21,7 @@ export default defineConfig({
       name: "dojo-api",
       testDir: "./tests/",
       use: {
-        baseURL: process.env.BASE_URL || "http://localhost:3000/",
+        baseURL,
         extraHTTPHeaders: {
           Accept: "application/json",
           "Content-Type": "application/json",

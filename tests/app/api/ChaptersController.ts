@@ -2,8 +2,8 @@ import { BaseController } from "./BaseController";
 import type * as ChapterTypes from "../schemas/Chapters";
 
 export class ChaptersController extends BaseController {
-  private endpoint = (courseId: string) => `/api/courses/${courseId}/chapters`;
-  private chapterEndpoint = (courseId: string, chapterId: string) => `/api/courses/${courseId}/chapters/${chapterId}`;
+  private endpoint = (courseId: string) => `api/courses/${courseId}/chapters`;
+  private chapterEndpoint = (courseId: string, chapterId: string) => `api/courses/${courseId}/chapters/${chapterId}`;
 
   async addChapterToCourse(
     courseId: string,
