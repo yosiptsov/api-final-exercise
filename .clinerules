@@ -12,7 +12,7 @@
 # Test Creation Workflow
 
 - Focus only on critical business scenarios and only cover edge cases if explicitly asked.
-- **TEST PLANS (CRITICAL):** When you generate tests, please write a short test-plan detailing what was covered with tests. Place it in the file `TEST-PLAN.md` in the folder `tests/specs`.
+- **TEST PLANS (CRITICAL):** When planning or generating tests, create a test plan file named after the spec file (e.g., `<specName>.testplan.md`) located in the same folder as the spec file (e.g., `tests/specs/<folder>/<specName>.testplan.md`). Use the `create-test-plan` skill for reference.
 - Use `test.step` in tests to improve report and code readability.
 - Divide each test by the AAA principle (`// Arrange`, `// Act`, `// Assert`) and mark these blocks with a comment.
 - Use the `faker` library to generate test data. Prefer its functions related to eCommerce, shops, orders, and shipments.

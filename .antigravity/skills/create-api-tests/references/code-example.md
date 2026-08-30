@@ -1,7 +1,8 @@
 ```typescript
 import { test, expect } from "../fixtures";
 import { TAG } from "../../app/tags/tags";
-import { CreateCoursePayload, CourseResponseSchema, CourseResponse } from "../../app/schemas/Courses";
+import type * as CourseTypes from "../../app/schemas/Courses";
+import * as CourseSchemas from "../../app/schemas/Courses";
 import { verifyHeaders } from "../../app/utils/commonAssertions";
 import { faker } from "@faker-js/faker";
 import { APIResponse } from "@playwright/test";
@@ -13,8 +14,8 @@ test.describe("POST /api/courses - Create a new course", { tag: [TAG.course] }, 
     { tag: [TAG.positive, TAG.regression, TAG.passToken] },
     () => {
       let createdCourseResponse: APIResponse;
-      let createdCourseJson: CourseResponse;
-      let coursePayload: CreateCoursePayload;
+      let createdCourseJson: CourseTypes.CourseResponse;
+      let coursePayload: CourseTypes.CreateCoursePayload;
 
       test.beforeEach(async ({ adminApi }) => {
         //Arrange
@@ -38,7 +39,7 @@ test.describe("POST /api/courses - Create a new course", { tag: [TAG.course] }, 
         });
 
         await test.step("check that json correspond to expected json schema", async () => {
-          const result = CourseResponseSchema.safeParse(createdCourseJson);
+          const result = CourseSchemas.CourseResponseSchema.safeParse(createdCourseJson);
           expect(result.success, { message: result.error?.message }).toBeTruthy();
         });
 
@@ -78,7 +79,7 @@ test.describe("POST /api/courses - Create a new course", { tag: [TAG.course] }, 
         adminApi,
       }) => {
         //Arrange - duplicate payload with the same title created in beforeEach
-        const duplicatePayload: CreateCoursePayload = {
+        const duplicatePayload: CourseTypes.CreateCoursePayload = {
           title: coursePayload.title,
         };
 
@@ -140,7 +141,7 @@ test.describe("POST /api/courses - Create a new course", { tag: [TAG.course] }, 
 
       test("Course 04: clientCredentials token should not allow to create a course", async ({ clientApi }) => {
         //Arrange
-        const coursePayload: CreateCoursePayload = {
+        const coursePayload: CourseTypes.CreateCoursePayload = {
           title: `PW Generated Course about ${faker.book.title}`,
         };
         //Act
