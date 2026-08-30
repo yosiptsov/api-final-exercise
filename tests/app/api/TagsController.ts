@@ -2,7 +2,7 @@ import { BaseController } from "./BaseController";
 import type * as TagsTypes from "../schemas/Tags";
 
 export class TagsController extends BaseController {
-  private endpoint = "/api/courses";
+  private endpoint = "/api/tags";
 
   async createTag(tagName: string, failOnStatusCode: boolean = true) {
     const response = await this.request.post(this.endpoint, {

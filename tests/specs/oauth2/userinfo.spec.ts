@@ -2,9 +2,6 @@ import { test, expect } from "../fixtures";
 import { TAG } from "../../app/tags/tags";
 import { ClientInfoSchema, UserInfoSchema } from "../../app/schemas/UserInfo";
 import { verifyHeaders } from "../../app/utils/commonAssertions";
-import { faker } from "@faker-js/faker";
-import { deleteUserFromDB, verifyUserExistsInDB } from "../../app/utils/dbTasks";
-import { RegisterUserPayload } from "../../app/schemas/RegisterUser";
 
 test.describe("GET /api/oauth/userinfo - Test Coverage Suite", () => {
   test.describe(

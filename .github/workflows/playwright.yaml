@@ -1,17 +1,10 @@
 name: api tests
 
 # Тригери воркфлоу:
-# 1. schedule — автоматичний нічний запуск о 00:00 UTC щодня.
-#    Використовує дефолтні значення параметрів (url і workersCount),
-#    тому при плановому запуску github.event.inputs буде null —
-#    BASE_URL і кількість воркерів беруться з default у inputs.
-# 2. workflow_dispatch — ручний запуск через GitHub UI або API.
+# 1. workflow_dispatch — ручний запуск через GitHub UI або API.
 #    Дозволяє передати URL цільового API і кількість паралельних воркерів
 #    без зміни коду воркфлоу — зручно для запуску тестів на різних оточеннях.
 on:
-  schedule:
-    - cron: "0 0 * * *"
-
   workflow_dispatch:
     inputs:
       url:

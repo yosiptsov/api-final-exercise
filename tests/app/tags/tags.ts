@@ -11,5 +11,5 @@ export enum TAG {
   negative = "@negative",
   passToken = "@passToken",
   clientToken = "@clientToken",
-  aiGenerated = "aiGenerated",
+  aiGenerated = "@aiGenerated",
 }

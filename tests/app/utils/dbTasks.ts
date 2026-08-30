@@ -29,3 +29,13 @@ export async function deleteOAuthClientFromDb(oAuthClientId: string) {
   });
   expect(dbClient, "verify client is not present in DB").toBeNull();
 }
+
+export async function deleteTagFromDb(tagId: string) {
+  try {
+    await prisma.tag.delete({
+      where: { id: tagId },
+    });
+  } catch (error) {
+    // Ignore error if tag is already deleted
+  }
+}

@@ -1,4 +1,5 @@
 # Project Core
+
 - Use the Playwright framework and TypeScript to cover features with API tests.
 - Test contracts, not implementations. Assert on response shape, status codes, and headers — not on internal logic or database state.
 - Assert response status codes based on REST standards, not based on the real API answer. It's OK that some tests return errors related to the status code — devs will fix this in future according to the standards described in tests.
@@ -9,6 +10,7 @@
 - Move all sensitive or environment-related information to the `.env` file.
 
 # Test Creation Workflow
+
 - Focus only on critical business scenarios and only cover edge cases if explicitly asked.
 - **TEST PLANS (CRITICAL):** When you generate tests, please write a short test-plan detailing what was covered with tests. Place it in the file `TEST-PLAN.md` in the folder `tests/specs`.
 - Use `test.step` in tests to improve report and code readability.
@@ -16,8 +18,10 @@
 - Use the `faker` library to generate test data. Prefer its functions related to eCommerce, shops, orders, and shipments.
 - Organize tests in `test.describe` blocks by shared properties, such as `"Error responses"`, `"Authorized"`, `"Unauthorized"`, etc.
 - Use test tags, preferably at the `test.describe` level. Import tags from the enum: `import { TAG } from "../../app/tags/tags";`. **CRITICAL: You MUST always add `TAG.aiGenerated` additionally to other tags for all tests you generate.** Example: `test.describe("Positive Scenarios", { tag: [TAG.auth, TAG.positive, TAG.aiGenerated] }, ...)`
-- **DATABASE CLEANUP:** When creating tests that mutate data, always use functions from `tests/app/utils/dbTasks.ts` in the `test.afterEach` hook to clean up the database.
+- **DATABASE CLEANUP:** When creating tests that mutate data, try to clean up the database in the `test.afterEach` using API OR use functions from `tests/app/utils/dbTasks.ts`, if it is impossible to do thought the API.
+- add response headers assertions from /app/utils/commonAssertions.
 
 # API References
-- **OpenAPI Documentation:** The primary documentation for the API can be found at `http://localhost:3000/api/docs`. 
-- *(Legacy note)*: You don't have access to the old openapi documentation by URL https://bifrost-dev.novapost.work/docs/api#/, it requires a vpn connection. You can find the documentation exported to JSON file here: `.antigravity/skills/create-api-tests/references/openapi-docs.json`. API endpoints are available without vpn, so you are able to run requests.
+
+- **OpenAPI Documentation:** The primary documentation for the API can be found at `http://localhost:3000/api/docs`.
+- _(Legacy note)_: You don't have access to the old openapi documentation by URL https://bifrost-dev.novapost.work/docs/api#/, it requires a vpn connection. You can find the documentation exported to JSON file here: `.antigravity/skills/create-api-tests/references/openapi-docs.json`. API endpoints are available without vpn, so you are able to run requests.
